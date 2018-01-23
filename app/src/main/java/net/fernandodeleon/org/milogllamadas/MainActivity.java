@@ -2,11 +2,17 @@ package net.fernandodeleon.org.milogllamadas;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.CallLog;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
@@ -20,7 +26,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void mostrarLlamadas(View v){
-
+        if(verEstadoPermiso()){
+            consultarCPLlamadas();
+        }else{
+            solicitarPermiso();
+        }
     }
 
     public void solicitarPermiso(){
@@ -37,16 +47,52 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean verEstadoPermiso(){
+        boolean permisoReadCallLog = ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED;
+        boolean permisoWriteCAllLog = ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALL_LOG) == PackageManager.PERMISSION_GRANTED;
 
-        return true;
+        if(permisoReadCallLog  && permisoWriteCAllLog){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        //super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch(requestCode){
+            case CODIGO_SOLICITUD:
+                if(verEstadoPermiso()){
+                    Toast.makeText(this, "Ya está activo el permiso", Toast.LENGTH_LONG).show();
+                    consultarCPLlamadas();
+                }else{
+                    Toast.makeText(this, "No se activo el permiso", Toast.LENGTH_LONG).show();
+                }
+        }
     }
 
     public void consultarCPLlamadas(){
+        TextView tvLlamadas = (TextView) findViewById(R.id.tvLlamadas);
+        tvLlamadas.setText("");
+
+        Uri direccionUriLlamadas = CallLog.Calls.CONTENT_URI;
+
+        //Numero, fecha, tipo, duración
+        String[] campos = {
+                CallLog.Calls.NUMBER,
+                CallLog.Calls.DATE,
+                CallLog.Calls.TYPE,
+                CallLog.Calls.DURATION
+        };
+
+        ContentResolver contentResolver = getContentResolver();
+        Cursor registros = contentResolver.query(direccionUriLlamadas, campos, null, null, CallLog.Calls.DATE + " DESC");
+        while(registros.moveToNext()){
+            String numero = registros.getColumnName(registros.getColumnIndex(campos[0]));
+            Long fecha = registros.getColumnName(registros.getColumnIndex(campos[1]));
+            int tipo = 0;
+            String duracion = "";
+        }
 
     }
 }
