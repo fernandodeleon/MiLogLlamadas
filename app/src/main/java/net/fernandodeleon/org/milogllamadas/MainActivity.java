@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.icu.text.DateFormat;
 import android.net.Uri;
 import android.provider.CallLog;
 import android.support.annotation.NonNull;
@@ -88,10 +89,34 @@ public class MainActivity extends AppCompatActivity {
         ContentResolver contentResolver = getContentResolver();
         Cursor registros = contentResolver.query(direccionUriLlamadas, campos, null, null, CallLog.Calls.DATE + " DESC");
         while(registros.moveToNext()){
+            //OBTENER LOS DATOS A PARTIR DEL INDICE DE LA COLUMNA
             String numero = registros.getColumnName(registros.getColumnIndex(campos[0]));
-            Long fecha = registros.getColumnName(registros.getColumnIndex(campos[1]));
-            int tipo = 0;
-            String duracion = "";
+            Long fecha = registros.getLong(registros.getColumnIndex(campos[1]));
+            int tipo = registros.getInt(registros.getColumnIndex(campos[2]));
+            String duracion = registros.getColumnName(registros.getColumnIndex(campos[3]));
+            String tipoLlamada = "";
+
+            //VALIDACION TIPO DE LLAMADA
+            switch(tipo){
+                case CallLog.Calls.INCOMING_TYPE:
+                    tipoLlamada = getResources().getString(R.string.entrada);
+                    break;
+                case CallLog.Calls.MISSED_TYPE:
+                    tipoLlamada = getResources().getString(R.string.salida);
+                    break;
+                case CallLog.Calls.OUTGOING_TYPE:
+                    tipoLlamada = getResources().getString(R.string.perdida);
+                    break;
+                default:
+                    tipoLlamada = getResources().getString(R.string.desconocida);
+            }
+
+            String detalle = getResources().getString(R.string.etiqueta_numero) + numero +
+            "\n" + getResources().getString(R.string.etiqueta_fecha) + android.text.format.DateFormat.format("dd/mm/yy k:mm", fecha) +
+            "\n" + getResources().getString(R.string.etiqueta_tipo) + tipo +
+            "\n" + getResources().getString(R.string.etiqueta_duracion) + duracion ;
+
+            tvLlamadas.append(detalle);
         }
 
     }

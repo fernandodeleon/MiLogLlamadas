@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">MiLogLlamadas</string>
+    <string name="entrada">Llamada entrada</string>
+    <string name="salida">Llamada salida</string>
+    <string name="perdida">Llamada perdida</string>
+    <string name="desconocida">Llamada desconocida</string>
+    <string name="etiqueta_numero">Número: </string>
+    <string name="etiqueta_fecha">Fecha: </string>
+    <string name="etiqueta_tipo">Tipo: </string>
+    <string name="etiqueta_duracion">Duración: </string>
 </resources>
